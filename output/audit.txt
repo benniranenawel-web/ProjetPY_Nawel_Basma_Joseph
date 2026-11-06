@@ -1,0 +1,34 @@
+=== VARIABLES GLOBALES (globals()) ===
+BLACKLIST                 frozenset       frozenset({'203.0.113.42', '192.0.2.99', '192.0.2.66'})
+FICHIERS                  list            ['data/serveur1.log', 'data/serveur2.log']
+FICHIER_AUDIT             str             'output/audit.txt'
+SEUIL_CRITIQUES           int             100
+SEUIL_ECHECS              int             5
+afficher_compteur         function        <function afficher_compteur at 0x0000029543FEF740>
+afficher_titre            function        <function afficher_titre at 0x0000029543F8E1F0>
+analyser_logs             function        <function analyser_logs at 0x0000029543FEEAE0>
+apply_security_rules      function        <function apply_security_rules at 0x0000029543FEF320>
+comparer_blacklist        function        <function comparer_blacklist at 0x0000029543FEEC40>
+construire_pipeline       function        <function construire_pipeline at 0x0000029543FEE820>
+detecter_force_brute      function        <function detecter_force_brute at 0x0000029543FEEDA0>
+exporter_audit            function        <function exporter_audit at 0x0000029543FEF5E0>
+generer_logs              function        <function generer_logs at 0x0000029543F8DFE0>
+lire_plusieurs_fichiers   function        <function lire_plusieurs_fichiers at 0x0000029543F8DD20>
+main                      function        <function main at 0x0000029543FEF8A0>
+regle_blacklist           function        <function regle_blacklist at 0x0000029543FEEF00>
+regle_force_brute         function        <function regle_force_brute at 0x0000029543FEF060>
+regle_trop_de_critiques   function        <function regle_trop_de_critiques at 0x0000029543FEF1C0>
+sys                       module          <module 'sys' (built-in)>
+
+=== VARIABLES LOCALES (locals()) ===
+alerte                    str             '293 logs CRITICAL (seuil : 100)'
+alertes                   dict            {'regle_blacklist': ['IP blacklistee active : 192.0.2.66', '...
+ensembles                 dict            {'blacklistees_actives': frozenset({'203.0.113.42', '192.0.2...
+etat                      str             'ATTAQUE'
+force_brute               dict            {'10.0.0.5': {'attaque': False, 'max_echecs': 3, 'heure': No...
+ip                        str             '203.0.113.42'
+lignes                    generator       <generator object lire_plusieurs_fichiers at 0x0000029543F21...
+logs                      map             <map object at 0x0000029544026280>
+nom                       str             'a_surveiller'
+nom_regle                 str             'regle_trop_de_critiques'
+stats                     dict            {'nb_logs': 1918, 'par_niveau': defaultdict(<class 'int'>, {...
