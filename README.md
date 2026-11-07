@@ -1,126 +1,135 @@
-# ProjetPY_Nawel_Basma_Joseph
-<div align="center">
+# Moteur d'analyse de flux de logs
 
-# 🌸 Moteur d'analyse de logs sécurisé 🌸
+Projet final de Python — ING3, ECE Paris
+Nawel, Basma, Joseph
 
-**Projet final Python — ING3 ECE**
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![Tests](https://img.shields.io/badge/tests-15%20passed-brightgreen)
 
-*Nawel · Basma · Joseph*
+## Présentation
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-ff69b4?style=for-the-badge&logo=python&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-15%20passed-ff1493?style=for-the-badge&logo=pytest&logoColor=white)
-![Mémoire](https://img.shields.io/badge/RAM-0%2C04%20Mo-ffb6c1?style=for-the-badge)
-![Statut](https://img.shields.io/badge/statut-termin%C3%A9-db7093?style=for-the-badge)
+Ce projet est un outil en ligne de commande qui analyse des fichiers de logs
+système et réseau. Il lit les fichiers ligne par ligne sans les charger
+entièrement en mémoire, nettoie les données, calcule des statistiques et
+détecte des comportements suspects :
 
-</div>
+- les adresses IP présentes dans une liste noire (blacklist) ;
+- les attaques par force brute (plusieurs échecs de connexion consécutifs
+  depuis la même IP).
 
----
+## Prérequis
 
-## 💡 Le projet en bref
+- Python 3.10 ou plus (nécessaire pour `match-case`)
+- Git
 
-Des serveurs écrivent des **millions de lignes de logs** par jour. Notre programme :
-
-- 📖 **lit** les fichiers ligne par ligne, sans jamais les charger entièrement en mémoire ;
-- 🧹 **nettoie** les lignes (vides, mal écrites, invalides) ;
-- 📊 **compte** les logs par niveau, par utilisateur, par type de connexion ;
-- 🚨 **détecte** les IP blacklistées et les **attaques par force brute**.
-
----
-
-## 🔄 Le trajet d'une ligne
-
-```mermaid
-flowchart LR
-    A[📁 Fichiers .log] --> B[📖 logs.py<br/>yield / yield from]
-    B --> C[🔧 transfo.py<br/>dict + tuple]
-    C --> D[🧹 filtres.py<br/>filter / map / match-case]
-    D --> E[📊 analyse.py<br/>set / defaultdict]
-    E --> F[🚨 regles.py<br/>*args / **kwargs]
-    F --> G[🔍 audit.py<br/>globals / locals]
-
-    style A fill:#ffe4ec,stroke:#ff69b4,color:#000
-    style B fill:#ffb6c1,stroke:#ff69b4,color:#000
-    style C fill:#ffb6c1,stroke:#ff69b4,color:#000
-    style D fill:#ff9ec4,stroke:#ff1493,color:#000
-    style E fill:#ff9ec4,stroke:#ff1493,color:#000
-    style F fill:#ff69b4,stroke:#c71585,color:#fff
-    style G fill:#ff69b4,stroke:#c71585,color:#fff
-```
-
----
-
-## 🚀 Installation
+## Installation
 
 ```powershell
+git clone <url-du-depot>
+cd Projet_ECE_Nawel_Basma_Joseph
 python -m venv venv
 venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-## ▶️ Utilisation
+## Utilisation
 
-| Commande | Ce que ça fait |
+| Commande | Description |
 |---|---|
-| `python generer_donnees.py` | 🌱 crée les fichiers de logs de test |
-| `python generer_donnees.py --gros` | 🐘 crée aussi un fichier d'1 million de lignes |
-| `python main.py` | 🔍 lance l'analyse complète |
-| `python main.py --flux` | 🌊 analyse un flux de logs simulé en direct |
-| `python -m pytest -v` | ✅ lance les tests automatiques |
+| `python generer_donnees.py` | génère les fichiers de logs de test dans `data/` |
+| `python generer_donnees.py --gros` | génère en plus un fichier d'un million de lignes |
+| `python main.py` | lance l'analyse sur les fichiers de `data/` |
+| `python main.py --flux` | lance l'analyse sur un flux de logs simulé |
+| `python -m pytest -v` | lance les tests automatiques |
 
----
+Le rapport d'audit des variables est écrit dans `output/audit.txt`.
 
-## 📂 Organisation
+## Structure du projet
 
 ```
-📦 Projet_ECE_Nawel_Basma_Joseph
- ┣ 📂 src
- ┃ ┣ 📜 logs.py        → lecture des fichiers
- ┃ ┣ 📜 transfo.py     → ligne → dictionnaire
- ┃ ┣ 📜 filtres.py     → nettoyage et tri
- ┃ ┣ 📜 analyse.py     → stats et force brute
- ┃ ┣ 📜 regles.py      → moteur de règles
- ┃ ┗ 📜 audit.py       → audit de la mémoire
- ┣ 📂 data             → logs de test
- ┣ 📂 tests            → tests automatiques
- ┣ 📜 main.py          → programme principal
- ┗ 📜 generer_donnees.py
+Projet_ECE_Nawel_Basma_Joseph/
+├── src/
+│   ├── logs.py          lecture des fichiers (générateurs)
+│   ├── transfo.py       transformation d'une ligne en dictionnaire
+│   ├── filtres.py       filtrage, normalisation et routage des logs
+│   ├── analyse.py       statistiques, ensembles d'IP, force brute
+│   ├── regles.py        moteur de règles de sécurité
+│   └── audit.py         audit des variables en mémoire
+├── tests/
+│   └── test_projet.py   tests automatiques (pytest)
+├── data/                fichiers de logs de test
+├── main.py              point d'entrée du programme
+├── generer_donnees.py   génération du jeu de données
+└── requirements.txt
 ```
 
----
+## Fonctionnement
 
-## 🎀 Les notions du sujet dans notre code
+Chaque ligne traverse les étapes suivantes, une par une :
 
-| Module | Notion | Où |
+```
+fichiers .log
+  -> lecture (yield / yield from)            src/logs.py
+  -> ligne -> dictionnaire + tuple           src/transfo.py
+  -> nettoyage et filtrage (filter / map)    src/filtres.py
+  -> statistiques et détection               src/analyse.py
+  -> règles de sécurité                      src/regles.py
+  -> affichage et audit                      main.py, src/audit.py
+```
+
+Les fichiers ne sont jamais chargés entièrement : `filter()` et `map()`
+renvoient des itérateurs, donc chaque ligne est traitée puis oubliée avant de
+lire la suivante.
+
+## Format des logs
+
+```
+2026-11-03T09:00:01 | ERROR | 192.168.1.10:22/TCP | user=alice | {"event": "login_failed"}
+```
+
+Cinq champs séparés par `|` : horodatage, niveau (INFO, WARNING, ERROR,
+CRITICAL), connexion (IP:port/protocole), utilisateur, message (JSON ou texte
+brut).
+
+## Jeu de données
+
+Les logs sont fictifs et générés par `generer_donnees.py`. Une graine
+aléatoire fixe permet d'obtenir toujours les mêmes fichiers.
+Le fichier `serveur1.log` contient des cas de test ajoutés volontairement :
+
+- une attaque par force brute (6 échecs consécutifs depuis `203.0.113.42`) ;
+- un utilisateur qui échoue 4 fois, réussit, puis échoue 3 fois (pas d'attaque) ;
+- une IP blacklistée active (`192.0.2.66`) ;
+- des lignes mal formées ou invalides, qui doivent être rejetées.
+
+## Notions Python utilisées
+
+| Module | Notion | Fichier / fonction |
 |---|---|---|
-| 1️⃣ | `yield` | `src/logs.py` → `lire_fichier` |
-| 1️⃣ | `yield from` | `src/logs.py` → `lire_plusieurs_fichiers` |
-| 1️⃣ | dictionnaire + tuple (IP, Port, Protocole) | `src/transfo.py` → `parser_ligne`, `lire_connexion` |
-| 2️⃣ | `filter` + `lambda`, `filter(None, ...)` | `src/filtres.py` → `construire_pipeline` |
-| 2️⃣ | `map` + f-strings | `src/filtres.py` → `normaliser_log` |
-| 2️⃣ | `match-case` | `src/filtres.py` → `router_log` |
-| 3️⃣ | `set`, `frozenset`, `\|` `&` `-` `^` | `src/analyse.py` → `comparer_blacklist` |
-| 3️⃣ | `defaultdict` | `src/analyse.py` → `analyser_logs` |
-| 3️⃣ | `while` + `for` + `break` + `continue` + `else` | `src/analyse.py` → `detecter_force_brute` |
-| 4️⃣ | `apply_security_rules(*args, **kwargs)` | `src/regles.py` |
-| 4️⃣ | `globals()` / `locals()` | `src/audit.py` → `exporter_audit` |
+| 1 | `yield`, `yield from` | `logs.py` : `lire_fichier`, `lire_plusieurs_fichiers` |
+| 1 | dictionnaire, tuple | `transfo.py` : `parser_ligne`, `lire_connexion` |
+| 2 | `filter`, `lambda`, `map`, f-strings | `filtres.py` : `construire_pipeline`, `normaliser_log` |
+| 2 | `match-case` | `filtres.py` : `router_log` |
+| 3 | `set`, `frozenset`, opérations d'ensembles | `analyse.py` : `comparer_blacklist` |
+| 3 | `defaultdict` | `analyse.py` : `analyser_logs` |
+| 3 | `while`, `for`, `break`, `continue`, `else` | `analyse.py` : `detecter_force_brute` |
+| 4 | `*args`, `**kwargs` | `regles.py` : `apply_security_rules` |
+| 4 | `globals()`, `locals()` | `audit.py` : `exporter_audit` |
 
----
+## Résultats sur le jeu de test
 
-## 📊 Résultats sur nos données de test
-
-| | |
+| Indicateur | Valeur |
 |---|---|
-| 📄 Lignes lues | **2 022** |
-| ✅ Logs valides | **1 918** |
-| 🗑️ Lignes rejetées | **104** |
-| ⛔ IP blacklistées actives | **2** (`192.0.2.66`, `203.0.113.42`) |
-| 🚨 Attaque par force brute | **1** (`203.0.113.42`) |
-| 🧠 Mémoire pour 1 million de lignes | **~0,04 Mo** (contre ~124 Mo avec `readlines()`) |
+| Lignes lues | 2 022 |
+| Logs valides | 1 918 |
+| Lignes rejetées | 104 |
+| IP blacklistées actives | 2 |
+| Attaques par force brute détectées | 1 |
 
----
+## Limites
 
-<div align="center">
-
-💖 *Fait avec amour (et beaucoup de `print`) par Nawel, Basma et Joseph* 💖
-
-</div>
+- Les niveaux de gravité des logs de test sont tirés au hasard et ne
+  correspondent pas toujours aux événements.
+- La détection de force brute ne tient pas compte du temps écoulé entre deux
+  tentatives.
+- Le programme ne lit que le format de ligne décrit plus haut.
