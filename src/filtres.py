@@ -65,17 +65,53 @@ def normaliser_log(log: dict) -> dict:
     return nouveau
 
 
-def construire_pipeline(lignes: Iterable[str]) -> Iterator[dict]:
+def creer_compteurs() -> dict:
+    """Cree les compteurs de lignes du pipeline, tous a zero."""
+    return {"lues": 0, "vides": 0, "fausses": 0, "invalides": 0}
+
+
+def compter_ligne(ligne: str, compteurs: dict) -> str:
+    """Compte une ligne lue (et si elle est vide) puis la renvoie intacte."""
+    compteurs["lues"] += 1
+    # meme test que filter(None, ...) : une ligne vide est consideree fausse
+    if not ligne:
+        compteurs["vides"] += 1
+    return ligne
+
+
+def garder_si_lisible(log: dict, compteurs: dict) -> bool:
+    """True si parser_ligne a reussi, sinon compte une ligne fausse."""
+    if log is None:
+        compteurs["fausses"] += 1
+        return False
+    return True
+
+
+def garder_si_valide(log: dict, compteurs: dict) -> bool:
+    """True si le log est valide, sinon compte un log invalide."""
+    if est_valide(log):
+        return True
+    compteurs["invalides"] += 1
+    return False
+
+
+def construire_pipeline(lignes: Iterable[str],
+                        compteurs: dict = None) -> Iterator[dict]:
     """Enchaine toutes les etapes de nettoyage sur les lignes."""
+    # compteurs est facultatif : sans lui, on compte dans un dict jetable
+    if compteurs is None:
+        compteurs = creer_compteurs()
+    # chaque ligne est comptee au passage (map reste paresseux)
+    lignes = map(lambda ligne: compter_ligne(ligne, compteurs), lignes)
     # filter(None, ...) garde ce qui est "vrai" : "" est faux, donc
     # les lignes vides disparaissent
     lignes = filter(None, lignes)
     # map() applique parser_ligne a chaque ligne : on obtient dict ou None
     logs = map(parser_ligne, lignes)
     # lambda = petite fonction sans nom : on enleve les None (lignes fausses)
-    logs = filter(lambda log: log is not None, logs)
-    # on passe la fonction est_valide elle-meme (sans parentheses) a filter
-    logs = filter(est_valide, logs)
+    logs = filter(lambda log: garder_si_lisible(log, compteurs), logs)
+    # on enleve aussi les logs refuses par est_valide, en les comptant
+    logs = filter(lambda log: garder_si_valide(log, compteurs), logs)
     # map() applique normaliser_log a chaque log restant
     logs = map(normaliser_log, logs)
     # rien n'est encore calcule : tout se fait quand on parcourt logs

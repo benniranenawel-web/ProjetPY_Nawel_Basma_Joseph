@@ -4,7 +4,7 @@ Projet final de Python — ING3, ECE Paris
 Nawel, Basma, Joseph
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
-![Tests](https://img.shields.io/badge/tests-16%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-17%20passed-brightgreen)
 
 ## Présentation
 

@@ -11,7 +11,7 @@ import sys
 # Module 1 : lecture des fichiers et flux simule
 from src.logs import generer_logs, lire_plusieurs_fichiers
 # Module 2 : nettoyage des logs (filter, map, lambda)
-from src.filtres import construire_pipeline
+from src.filtres import construire_pipeline, creer_compteurs
 # Module 3 : statistiques, ensembles, force brute
 from src.analyse import analyser_logs, comparer_blacklist
 from src.analyse import detecter_force_brute
@@ -55,6 +55,23 @@ def afficher_compteur(titre: str, compteur: dict) -> None:
         print("  ", cle.ljust(20), valeur)
 
 
+def afficher_lignes_traitees(compteurs: dict, nb_valides: int) -> None:
+    """Affiche le bilan des lignes lues et verifie que le compte est juste."""
+    afficher_titre("LIGNES TRAITEES")
+    print("Lignes lues       :", compteurs["lues"])
+    print("Lignes vides      :", compteurs["vides"])
+    print("Lignes fausses    :", compteurs["fausses"])
+    print("Lignes invalides  :", compteurs["invalides"])
+    print("Logs valides      :", nb_valides)
+    # chaque ligne lue doit etre tombee dans une seule categorie
+    total = (compteurs["vides"] + compteurs["fausses"]
+             + compteurs["invalides"] + nb_valides)
+    if total == compteurs["lues"]:
+        print("Verification      : OK (lues = vides + fausses + invalides + valides)")
+    else:
+        print("Verification      : ERREUR, le compte ne tombe pas juste")
+
+
 def main() -> None:
     """Enchaine toutes les etapes du projet et affiche les resultats."""
     # ---- 1) Choix de la source des lignes ----
@@ -67,12 +84,14 @@ def main() -> None:
     else:
         print("Source :", ", ".join(FICHIERS))
         # generateur : les fichiers sont lus ligne par ligne
-        lignes = lire_plusieurs_fichiers(FICHIERS)
+        lignes = lire_plusieurs_fichiers(FICHIERS)   
 
     # ---- 2) Pipeline puis statistiques (Modules 2 et 3) ----
     # nettoyage des lignes (rien n'est encore calcule)
-    logs = construire_pipeline(lignes)
+    compteurs = creer_compteurs()
+    logs = construire_pipeline(lignes, compteurs)
     # un seul parcours des logs pour tout compter
+    # (c'est aussi ce parcours qui remplit les compteurs)
     stats = analyser_logs(logs)
 
     # si aucun log valide, on arrete en expliquant pourquoi
@@ -99,6 +118,8 @@ def main() -> None:
         seuil_critiques=SEUIL_CRITIQUES,)
 
     # ---- 5) Affichage des resultats ----
+    afficher_lignes_traitees(compteurs, stats["nb_logs"])
+
     afficher_titre("STATISTIQUES")
     print("Nombre de logs valides :", stats["nb_logs"])
     afficher_compteur("Par niveau", stats["par_niveau"])

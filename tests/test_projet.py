@@ -12,6 +12,7 @@ from datetime import datetime
 from src.logs import lire_fichier, lire_plusieurs_fichiers
 from src.transfo import parser_ligne, lire_connexion, lire_message
 from src.filtres import construire_pipeline, ip_valide, router_log
+from src.filtres import creer_compteurs
 from src.analyse import analyser_logs, comparer_blacklist
 from src.analyse import detecter_force_brute
 from src.regles import apply_security_rules
@@ -96,6 +97,18 @@ def test_ip_valide():
     # le pipeline rejette bien un log qui a une mauvaise IP
     ligne = LIGNE.replace("192.168.1.10", "999.1.1.1")
     assert list(construire_pipeline([ligne])) == []
+
+
+def test_compteurs_du_pipeline():
+    compteurs = creer_compteurs()
+    lignes = ["", "", "ligne cassee", LIGNE.replace(":22/", ":99999/"),
+              LIGNE, LIGNE]
+    logs = construire_pipeline(lignes, compteurs)
+    # pipeline paresseux : rien n'est compte tant qu'on ne le parcourt pas
+    assert compteurs["lues"] == 0
+    valides = list(logs)
+    assert compteurs == {"lues": 6, "vides": 2, "fausses": 1, "invalides": 1}
+    assert len(valides) == 2
 
 
 def test_match_case():
