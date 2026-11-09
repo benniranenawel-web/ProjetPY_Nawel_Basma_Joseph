@@ -35,9 +35,9 @@ def lire_plusieurs_fichiers(liste_chemins: list[str]) -> Iterator[str]:
 # Creation de faux logs pour tester le programme
 
 NIVEAUX = ["INFO", "INFO", "INFO", "WARNING", "ERROR", "CRITICAL"]
-UTILISATEURS = ["naw", "basma", "joseph", "sarah", "mag"]
+UTILISATEURS = ["alice", "bob", "charlie", "david", "eve"]
 IPS = ["192.168.1.10", "192.168.1.11", "10.0.0.5", "172.16.0.3"]
-PORTS = [(18, "TCP"), (80, "TCP"), (119, "TCP"), (53, "UDP")]
+PORTS = [(22, "TCP"), (80, "TCP"), (443, "TCP"), (53, "UDP")]
 # login_success est mis plusieurs fois pour que les echecs soient rares
 EVENEMENTS = ["login_success", "login_success", "login_success",
               "login_success", "file_access", "logout", "login_failed"]

@@ -364,7 +364,7 @@ def test_projet_complet_sur_les_donnees():
                                    stats["ips_erreur"], blacklist)
     force_brute = detecter_force_brute(stats["tentatives"], 5)
     attaques = [ip for ip in force_brute if force_brute[ip]["attaque"]]
-    assert stats["nb_logs"] == 1918
+    assert stats["nb_logs"] == 1878
     assert ensembles["blacklistees_actives"] == {"203.0.113.42",
                                                  "192.0.2.66"}
-    assert attaques == ["203.0.113.42"]
+    assert sorted(attaques) == ["198.51.100.23", "198.51.100.77", "203.0.113.42"]

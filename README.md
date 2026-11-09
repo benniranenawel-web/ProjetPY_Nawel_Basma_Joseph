@@ -98,9 +98,13 @@ aléatoire fixe permet d'obtenir toujours les mêmes fichiers.
 Le fichier `serveur1.log` contient des cas de test ajoutés volontairement :
 
 - une attaque par force brute (6 échecs consécutifs depuis `203.0.113.42`) ;
+- deux attaques mélangées au trafic normal (`198.51.100.23` et `198.51.100.77`) ;
 - un utilisateur qui échoue 4 fois, réussit, puis échoue 3 fois (pas d'attaque) ;
 - une IP blacklistée active (`192.0.2.66`) ;
 - des lignes mal formées ou invalides, qui doivent être rejetées.
+
+Dans les deux fichiers, une ligne sur 25 est abîmée au hasard : casse ou espaces
+à corriger, IP impossible ou ligne coupée à rejeter.
 
 La liste noire d'IP est dans `data/blacklist.txt` (une IP par ligne, les
 lignes vides et les commentaires `#` sont ignorés).
@@ -124,10 +128,10 @@ lignes vides et les commentaires `#` sont ignorés).
 | Indicateur | Valeur |
 |---|---|
 | Lignes lues | 2 022 |
-| Logs valides | 1 918 |
-| Lignes rejetées | 104 |
+| Logs valides | 1 878 |
+| Lignes rejetées | 144 |
 | IP blacklistées actives | 2 |
-| Attaques par force brute détectées | 1 |
+| Attaques par force brute détectées | 3 |
 
 ## Limites
 
