@@ -114,7 +114,7 @@ Le fichier `serveur1.log` contient des cas de test ajoutés volontairement :
 | 3 | `defaultdict` | `analyse.py` : `analyser_logs` |
 | 3 | `while`, `for`, `break`, `continue`, `else` | `analyse.py` : `detecter_force_brute` |
 | 4 | `*args`, `**kwargs` | `regles.py` : `apply_security_rules` |
-| 4 | `globals()`, `locals()` | `audit.py` : `exporter_audit` |
+| 4 | `globals()`, `locals()` | `main.py` : `main` (appels), `audit.py` : `exporter_audit` |
 
 ## Résultats sur le jeu de test
 
