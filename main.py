@@ -13,7 +13,7 @@ from src.logs import generer_logs, lire_plusieurs_fichiers
 # Module 2 : nettoyage des logs (filter, map, lambda)
 from src.filtres import construire_pipeline, creer_compteurs
 # Module 3 : statistiques, ensembles, force brute
-from src.analyse import analyser_logs, comparer_blacklist
+from src.analyse import analyser_logs, charger_blacklist, comparer_blacklist
 from src.analyse import detecter_force_brute
 # Module 4 : moteur de regles et audit
 from src.regles import apply_security_rules, regle_blacklist
@@ -23,8 +23,8 @@ from src.audit import exporter_audit
 # ---------------- Parametres du programme ----------------
 # fichiers de logs a analyser
 FICHIERS = ["data/serveur1.log", "data/serveur2.log"]
-# liste noire d'IP : frozenset car elle ne doit jamais etre modifiee
-BLACKLIST = frozenset({"203.0.113.42", "192.0.2.66", "192.0.2.99"})
+# fichier qui contient la liste noire d'IP (une IP par ligne)
+FICHIER_BLACKLIST = "data/blacklist.txt"
 # nombre d'echecs de connexion d'affilee pour parler d'attaque
 SEUIL_ECHECS = 5
 # nombre de logs CRITICAL a partir duquel on alerte
@@ -101,8 +101,13 @@ def main() -> None:
         return
 
     # ---- 3) Ensembles et force brute (Module 3) ----
+    # liste noire d'IP : frozenset car elle ne doit jamais etre modifiee
+    blacklist = charger_blacklist(FICHIER_BLACKLIST)
+    # fichier absent ou vide : on previent et on continue sans blacklist
+    if not blacklist:
+        print("Attention : blacklist vide, aucune IP ne sera signalee.")
     ensembles = comparer_blacklist(stats["ips_actives"],
-                                   stats["ips_erreur"], BLACKLIST)
+                                   stats["ips_erreur"], blacklist)
     force_brute = detecter_force_brute(stats["tentatives"], SEUIL_ECHECS)
 
     # ---- 4) Moteur de regles (Module 4) ----
@@ -131,7 +136,7 @@ def main() -> None:
     # sorted() transforme le set en liste triee, plus lisible
     print("IP actives   :", sorted(stats["ips_actives"]))
     print("IP en erreur :", sorted(stats["ips_erreur"]))
-    print("Blacklist    :", sorted(BLACKLIST))
+    print("Blacklist    :", sorted(blacklist))
     # une ligne par resultat d'operation d'ensembles
     for nom in ensembles:
         print(nom.ljust(22), ":", sorted(ensembles[nom]))

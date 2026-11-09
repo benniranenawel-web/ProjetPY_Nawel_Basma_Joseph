@@ -1,0 +1,4 @@
+# Liste noire d'adresses IP : une IP par ligne
+203.0.113.42
+192.0.2.66
+192.0.2.99

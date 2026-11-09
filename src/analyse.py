@@ -8,6 +8,8 @@ from typing import Iterable
 
 # on reutilise le match-case du Module 2 pour classer les logs
 from src.filtres import router_log
+# on reutilise le generateur du Module 1 pour lire la blacklist
+from src.logs import lire_fichier
 
 
 def analyser_logs(logs: Iterable[dict]) -> dict:
@@ -62,6 +64,15 @@ def analyser_logs(logs: Iterable[dict]) -> dict:
         "tentatives": tentatives,
         "ips_actives": ips_actives,
         "ips_erreur": ips_erreur,}
+
+
+def charger_blacklist(chemin: str) -> frozenset[str]:
+    """Lit la blacklist (une IP par ligne) et la renvoie en frozenset."""
+    # on garde les lignes qui contiennent une IP : ni vides, ni commentaires
+    ips = filter(lambda ligne: ligne and not ligne.startswith("#"),
+                 lire_fichier(chemin))
+    # frozenset : la blacklist ne peut plus etre modifiee ensuite
+    return frozenset(ips)
 
 
 def comparer_blacklist(ips_actives: set, ips_erreur: set,

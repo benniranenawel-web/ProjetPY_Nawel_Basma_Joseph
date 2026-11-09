@@ -4,7 +4,7 @@ Projet final de Python — ING3, ECE Paris
 Nawel, Basma, Joseph
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
-![Tests](https://img.shields.io/badge/tests-17%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-18%20passed-brightgreen)
 
 ## Présentation
 
@@ -57,7 +57,7 @@ Projet_ECE_Nawel_Basma_Joseph/
 │   └── audit.py         audit des variables en mémoire
 ├── tests/
 │   └── test_projet.py   tests automatiques (pytest)
-├── data/                fichiers de logs de test
+├── data/                fichiers de logs de test et blacklist.txt
 ├── main.py              point d'entrée du programme
 ├── generer_donnees.py   génération du jeu de données
 └── requirements.txt
@@ -102,6 +102,9 @@ Le fichier `serveur1.log` contient des cas de test ajoutés volontairement :
 - une IP blacklistée active (`192.0.2.66`) ;
 - des lignes mal formées ou invalides, qui doivent être rejetées.
 
+La liste noire d'IP est dans `data/blacklist.txt` (une IP par ligne, les
+lignes vides et les commentaires `#` sont ignorés).
+
 ## Notions Python utilisées
 
 | Module | Notion | Fichier / fonction |
@@ -110,7 +113,7 @@ Le fichier `serveur1.log` contient des cas de test ajoutés volontairement :
 | 1 | dictionnaire, tuple | `transfo.py` : `parser_ligne`, `lire_connexion` |
 | 2 | `filter`, `lambda`, `map`, f-strings | `filtres.py` : `construire_pipeline`, `normaliser_log` |
 | 2 | `match-case` | `filtres.py` : `router_log` |
-| 3 | `set`, `frozenset`, opérations d'ensembles | `analyse.py` : `comparer_blacklist` |
+| 3 | `set`, `frozenset`, opérations d'ensembles | `analyse.py` : `charger_blacklist`, `comparer_blacklist` |
 | 3 | `defaultdict` | `analyse.py` : `analyser_logs` |
 | 3 | `while`, `for`, `break`, `continue`, `else` | `analyse.py` : `detecter_force_brute` |
 | 4 | `*args`, `**kwargs` | `regles.py` : `apply_security_rules` |

@@ -14,7 +14,7 @@ from src.transfo import parser_ligne, lire_connexion, lire_message
 from src.filtres import construire_pipeline, ip_valide, router_log
 from src.filtres import creer_compteurs
 from src.analyse import analyser_logs, comparer_blacklist
-from src.analyse import detecter_force_brute
+from src.analyse import charger_blacklist, detecter_force_brute
 from src.regles import apply_security_rules
 from src.audit import exporter_audit
 
@@ -152,6 +152,18 @@ def test_operations_ensembles():
     assert resultat["a_surveiller"] == {"A", "B", "C"}
 
 
+def test_charger_blacklist(tmp_path):
+    fichier = tmp_path / "blacklist.txt"
+    fichier.write_text("# commentaire\n1.1.1.1\n\n  2.2.2.2  \n1.1.1.1\n",
+                       encoding="utf-8")
+    blacklist = charger_blacklist(str(fichier))
+    # commentaire et ligne vide ignores, doublon retire, espaces enleves
+    assert blacklist == {"1.1.1.1", "2.2.2.2"}
+    assert type(blacklist) is frozenset
+    # fichier absent : blacklist vide, sans planter
+    assert charger_blacklist(str(tmp_path / "absent.txt")) == frozenset()
+
+
 def test_force_brute_detectee():
     resultat = detecter_force_brute({"ip": creer_tentatives("SFFFFF")}, 5)
     assert resultat["ip"]["attaque"] is True
@@ -195,7 +207,7 @@ def test_projet_complet_sur_les_donnees():
     fichiers = ["data/serveur1.log", "data/serveur2.log"]
     stats = analyser_logs(construire_pipeline(
         lire_plusieurs_fichiers(fichiers)))
-    blacklist = frozenset({"203.0.113.42", "192.0.2.66", "192.0.2.99"})
+    blacklist = charger_blacklist("data/blacklist.txt")
     ensembles = comparer_blacklist(stats["ips_actives"],
                                    stats["ips_erreur"], blacklist)
     force_brute = detecter_force_brute(stats["tentatives"], 5)
