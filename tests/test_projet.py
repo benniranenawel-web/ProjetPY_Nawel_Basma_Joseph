@@ -11,7 +11,7 @@ from datetime import datetime
 
 from src.logs import lire_fichier, lire_plusieurs_fichiers
 from src.transfo import parser_ligne, lire_connexion, lire_message
-from src.filtres import construire_pipeline, router_log
+from src.filtres import construire_pipeline, ip_valide, router_log
 from src.analyse import analyser_logs, comparer_blacklist
 from src.analyse import detecter_force_brute
 from src.regles import apply_security_rules
@@ -83,6 +83,19 @@ def test_pipeline_filtre_et_nettoie():
     assert len(logs) == 1
     assert logs[0]["niveau"] == "ERROR"
     assert logs[0]["user"] == "alice"
+
+
+def test_ip_valide():
+    # IP correctes, y compris les valeurs limites 0 et 255
+    assert ip_valide("192.168.1.10") is True
+    assert ip_valide("0.0.0.0") is True
+    assert ip_valide("255.255.255.255") is True
+    # IP fausses : trop grand, pas 4 nombres, lettres, chaine vide
+    for ip in ["999.1.1.1", "10.0.0", "abc.1.2.3", "1.2.3.4.5", ""]:
+        assert ip_valide(ip) is False
+    # le pipeline rejette bien un log qui a une mauvaise IP
+    ligne = LIGNE.replace("192.168.1.10", "999.1.1.1")
+    assert list(construire_pipeline([ligne])) == []
 
 
 def test_match_case():
@@ -178,4 +191,3 @@ def test_projet_complet_sur_les_donnees():
     assert ensembles["blacklistees_actives"] == {"203.0.113.42",
                                                  "192.0.2.66"}
     assert attaques == ["203.0.113.42"]
-    

@@ -5,10 +5,29 @@ from typing import Iterable, Iterator
 # on reutilise la fonction du Module 1 qui transforme une ligne en dict
 from src.transfo import parser_ligne
 
+def ip_valide(ip: str) -> bool:
+    """True si l'IP contient 4 nombres entre 0 et 255 separes par des points."""
+    morceaux = ip.split(".")
+    # il faut exactement 4 nombres
+    if len(morceaux) != 4:
+        return False
+    for morceau in morceaux:
+        # isascii() en plus : "²" passe isdigit() mais ferait planter int()
+        if not (morceau.isascii() and morceau.isdigit()):
+            return False
+        # isdigit() refuse deja le signe "-" : il reste a verifier le maximum
+        if int(morceau) > 255:
+            return False
+    return True
+
+
 def est_valide(log: dict) -> bool:
-    """True si le log a un utilisateur, un bon port et un bon protocole."""
+    """True si le log a une bonne IP, un utilisateur, un bon port et protocole."""
     # on "deballe" le tuple (ip, port, protocole) en 3 variables
     ip, port, protocole = log["connexion"]
+    # adresse IP mal formee -> log invalide
+    if not ip_valide(ip):
+        return False
     # utilisateur vide -> log invalide
     if log["user"].strip() == "":
         return False
@@ -98,4 +117,3 @@ def router_log(element: object) -> str:
         # tout le reste
         case _:
             return "inconnu"
-        
