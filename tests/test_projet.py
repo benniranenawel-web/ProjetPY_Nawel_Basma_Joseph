@@ -12,10 +12,10 @@ from datetime import datetime
 from src.logs import lire_fichier, lire_plusieurs_fichiers
 from src.transfo import parser_ligne, lire_connexion, lire_message
 from src.filtres import construire_pipeline, ip_valide, router_log
-from src.filtres import creer_compteurs
+from src.filtres import creer_compteurs, normaliser_log
 from src.analyse import analyser_logs, comparer_blacklist
 from src.analyse import charger_blacklist, detecter_force_brute
-from src.regles import apply_security_rules
+from src.regles import apply_security_rules, regle_trop_de_critiques
 from src.audit import exporter_audit
 
 # une ligne de log correcte, reutilisee dans plusieurs tests
@@ -42,6 +42,17 @@ def test_yield_from_enchaine_les_fichiers(tmp_path):
                str(tmp_path / "b.log")]
     # le fichier absent est ignore, les autres sont lus dans l'ordre
     assert list(lire_plusieurs_fichiers(chemins)) == ["a1", "a2", "b1"]
+
+
+def test_yield_from_signale_le_fichier_manquant(tmp_path, capsys):
+    (tmp_path / "a.log").write_text("a1\n", encoding="utf-8")
+    (tmp_path / "c.log").write_text("c1\n", encoding="utf-8")
+    chemins = [str(tmp_path / "a.log"), str(tmp_path / "b.log"),
+               str(tmp_path / "c.log")]
+    # le fichier du milieu manque : les autres sont quand meme lus
+    assert list(lire_plusieurs_fichiers(chemins)) == ["a1", "c1"]
+    # capsys recupere ce qui a ete affiche : l'erreur est signalee
+    assert "n'existe pas" in capsys.readouterr().out
 
 
 # ---------------- Module 1 : transformation ----------------
@@ -121,6 +132,45 @@ def test_match_case():
     assert router_log(42) == "inconnu"
 
 
+def test_normalisation_ligne_sale():
+    ligne = ("2026-11-03T09:00:01 | warning | 10.0.0.5:80/TCP "
+             "| user=  ALICE  |   Disk Usage HIGH  ")
+    log = normaliser_log(parser_ligne(ligne))
+    assert log["niveau"] == "WARNING"
+    assert log["user"] == "alice"
+    assert log["message"] == "disk usage high"
+    assert "user=alice" in log["resume"]
+
+
+def test_router_chaine():
+    assert router_log("disk usage high") == "texte_brut"
+
+
+def test_router_tuples():
+    assert router_log(("1.1.1.1", 22, "TCP")) == "ssh"
+    assert router_log(("1.1.1.1", 80, "TCP")) == "web"
+    assert router_log(("1.1.1.1", 443, "TCP")) == "web"
+    assert router_log(("1.1.1.1", 53, "UDP")) == "udp"
+
+
+def test_router_dictionnaires():
+    echec = {"niveau": "ERROR", "message": {"event": "login_failed"}}
+    reussite = {"niveau": "INFO", "message": {"event": "login_success"}}
+    # l'evenement est teste avant le niveau : echec reste un echec
+    assert router_log(echec) == "echec_connexion"
+    assert router_log(reussite) == "connexion_reussie"
+    assert router_log({"niveau": "ERROR", "message": "x"}) == "erreur"
+    assert router_log({"niveau": "INFO", "message": "x"}) == "normal"
+    assert router_log({"event": "logout"}) == "logout"
+
+
+def test_router_cas_par_defaut():
+    assert router_log(42) == "inconnu"
+    assert router_log({}) == "inconnu"
+    # un tuple sur un port qu'on ne connait pas
+    assert router_log(("1.1.1.1", 8080, "TCP")) == "inconnu"
+
+
 # ---------------- Module 3 : analyse ----------------
 
 def creer_tentatives(texte):
@@ -152,6 +202,32 @@ def test_operations_ensembles():
     assert resultat["a_surveiller"] == {"A", "B", "C"}
 
 
+def exemple_ensembles():
+    """Resultat de comparer_blacklist sur un petit exemple connu."""
+    return comparer_blacklist({"A", "C"}, {"C", "D"}, frozenset({"A", "B"}))
+
+
+def test_operateur_union():
+    # | : IP en erreur + blacklist
+    assert exemple_ensembles()["a_surveiller"] == {"A", "B", "C", "D"}
+
+
+def test_operateur_intersection():
+    # & : IP blacklistees vues dans les logs
+    assert exemple_ensembles()["blacklistees_actives"] == {"A"}
+
+
+def test_operateur_difference():
+    # - : le resultat depend du sens de la soustraction
+    assert exemple_ensembles()["autorisees"] == {"C"}
+    assert exemple_ensembles()["blacklistees_absentes"] == {"B"}
+
+
+def test_operateur_difference_symetrique():
+    # ^ : IP presentes d'un seul cote
+    assert exemple_ensembles()["difference_symetrique"] == {"B", "C"}
+
+
 def test_charger_blacklist(tmp_path):
     fichier = tmp_path / "blacklist.txt"
     fichier.write_text("# commentaire\n1.1.1.1\n\n  2.2.2.2  \n1.1.1.1\n",
@@ -173,6 +249,21 @@ def test_reussite_remet_le_compteur_a_zero():
     resultat = detecter_force_brute({"ip": creer_tentatives("FFFFSFFFF")}, 5)
     assert resultat["ip"]["attaque"] is False
     assert resultat["ip"]["max_echecs"] == 4
+
+
+def test_force_brute_branche_else_sans_attaque():
+    resultat = detecter_force_brute({"ip": creer_tentatives("FFFFS")}, 5)
+    # pas de break : c'est le else du while qui remplit le resultat
+    assert resultat["ip"] == {"attaque": False, "max_echecs": 4, "heure": None}
+
+
+def test_force_brute_branche_break_avec_attaque():
+    tentatives = creer_tentatives("FFFFFFFF")
+    resultat = detecter_force_brute({"ip": tentatives}, 5)
+    assert resultat["ip"]["attaque"] is True
+    # break au 5e echec : les 3 suivants ne sont pas lus
+    assert resultat["ip"]["max_echecs"] == 5
+    assert resultat["ip"]["heure"] == tentatives[4][0]
 
 
 # ---------------- Module 4 : regles et audit ----------------
@@ -199,6 +290,48 @@ def test_audit_globals_locals(tmp_path):
     # regle_test vient de globals(), ma_variable de locals()
     assert "regle_test" in contenu
     assert "ma_variable" in contenu
+
+
+def regle_sans_parametre(**config):
+    return ["alerte fixe"]
+
+
+def test_moteur_sans_regle():
+    assert apply_security_rules() == {}
+
+
+def test_moteur_une_regle():
+    assert apply_security_rules(regle_sans_parametre) == {
+        "regle_sans_parametre": ["alerte fixe"]}
+
+
+def test_moteur_plusieurs_regles():
+    resultat = apply_security_rules(regle_sans_parametre, regle_test, seuil=1)
+    assert resultat == {"regle_sans_parametre": ["alerte fixe"],
+                        "regle_test": ["seuil = 1"]}
+
+
+def test_moteur_transmet_les_kwargs():
+    stats = {"par_niveau": {"CRITICAL": 10}}
+    # meme regle, seul le parametre nomme change
+    assert apply_security_rules(regle_trop_de_critiques, stats=stats,
+                                seuil_critiques=5) == {
+        "regle_trop_de_critiques": ["10 logs CRITICAL (seuil : 5)"]}
+    assert apply_security_rules(regle_trop_de_critiques, stats=stats,
+                                seuil_critiques=50) == {
+        "regle_trop_de_critiques": []}
+
+
+def test_audit_contient_une_variable_locale(tmp_path):
+    variable_connue = 12345
+    chemin = str(tmp_path / "audit.txt")
+    exporter_audit(chemin, globals(), locals())
+    with open(chemin, encoding="utf-8") as fichier:
+        contenu = fichier.read()
+    # on regarde seulement la partie du rapport qui vient de locals()
+    partie_locale = contenu.split("VARIABLES LOCALES")[1]
+    assert "variable_connue" in partie_locale
+    assert str(variable_connue) in partie_locale
 
 
 # ---------------- Le projet entier ----------------
