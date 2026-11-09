@@ -4,7 +4,7 @@ Projet final de Python — ING3, ECE Paris
 Nawel, Basma, Joseph
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
-![Tests](https://img.shields.io/badge/tests-35%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-36%20passed-brightgreen)
 
 ## Présentation
 
@@ -133,6 +133,6 @@ lignes vides et les commentaires `#` sont ignorés).
 
 - Les niveaux de gravité des logs de test sont tirés au hasard et ne
   correspondent pas toujours aux événements.
-- La détection de force brute ne tient pas compte du temps écoulé entre deux
-  tentatives.
+- La détection de force brute utilise une fenêtre fixe de 60 secondes : une
+  attaque plus lente, ou répartie entre plusieurs IP, n'est pas détectée.
 - Le programme ne lit que le format de ligne décrit plus haut.

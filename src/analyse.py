@@ -91,7 +91,8 @@ def comparer_blacklist(ips_actives: set, ips_erreur: set,
         "a_surveiller": ips_erreur | blacklist,}
 
 
-def detecter_force_brute(tentatives: dict, seuil: int = 5) -> dict:
+def detecter_force_brute(tentatives: dict, seuil: int = 5,
+                         fenetre: int = 60) -> dict:
 
     # dictionnaire des resultats : une entree par IP
     resultats = {}
@@ -104,6 +105,8 @@ def detecter_force_brute(tentatives: dict, seuil: int = 5) -> dict:
         echecs = 0
         # plus grand nombre d'echecs d'affilee vu pour cette IP
         max_echecs = 0
+        # dates des echecs d'affilee, pour mesurer la fenetre de temps
+        dates_echecs = []
         # position dans la liste
         i = 0
 
@@ -117,21 +120,27 @@ def detecter_force_brute(tentatives: dict, seuil: int = 5) -> dict:
             # connexion reussie : le compteur repart a zero
             if evenement == "login_success":
                 echecs = 0
+                dates_echecs = []
                 # continue : on saute la suite et on passe au tour suivant
                 continue
 
             # sinon c'est un echec : +1
             echecs += 1
+            dates_echecs.append(date)
             # on retient le record d'echecs d'affilee
             if echecs > max_echecs:
                 max_echecs = echecs
 
-            # seuil atteint : c'est une attaque par force brute
+            # seuil atteint : on mesure le temps pris par les derniers echecs
             if echecs >= seuil:
-                resultats[ip] = {"attaque": True, "max_echecs": max_echecs,
-                                 "heure": date}
-                # break : on arrete le while, inutile de lire la suite
-                break
+                # les dates sont des datetime : leur difference est un timedelta
+                ecart = date - dates_echecs[-seuil]
+                # assez rapproches dans le temps : c'est une attaque
+                if ecart.total_seconds() <= fenetre:
+                    resultats[ip] = {"attaque": True, "max_echecs": max_echecs,
+                                     "heure": date}
+                    # break : on arrete le while, inutile de lire la suite
+                    break
 
         # le else d'une boucle s'execute SEULEMENT s'il n'y a pas eu de break
         else:

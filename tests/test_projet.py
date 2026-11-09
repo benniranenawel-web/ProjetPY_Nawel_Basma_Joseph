@@ -7,7 +7,7 @@
 # "assert condition" : si la condition est fausse, le test echoue.
 
 import inspect
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from src.logs import lire_fichier, lire_plusieurs_fichiers
 from src.transfo import parser_ligne, lire_connexion, lire_message
@@ -264,6 +264,25 @@ def test_force_brute_branche_break_avec_attaque():
     # break au 5e echec : les 3 suivants ne sont pas lus
     assert resultat["ip"]["max_echecs"] == 5
     assert resultat["ip"]["heure"] == tentatives[4][0]
+
+
+def attaque_detectee(secondes):
+    """Dit si des echecs, aux instants donnes en secondes, forment une attaque."""
+    debut = datetime(2026, 11, 3, 9, 0, 0)
+    liste = [(debut + timedelta(seconds=s), "login_failed") for s in secondes]
+    return detecter_force_brute({"ip": liste}, 5)["ip"]["attaque"]
+
+
+def test_force_brute_fenetre_de_60_secondes():
+    # 5 echecs en 30 s : attaque
+    assert attaque_detectee([0, 5, 10, 20, 30]) is True
+    # 5 echecs etales sur 10 minutes : pas d'attaque
+    assert attaque_detectee([0, 150, 300, 450, 600]) is False
+    # limite : 60 s pile est accepte, 61 s ne l'est plus
+    assert attaque_detectee([0, 15, 30, 45, 60]) is True
+    assert attaque_detectee([0, 15, 30, 45, 61]) is False
+    # un 1er echec tres ancien n'empeche pas de voir les 5 suivants
+    assert attaque_detectee([0, 1000, 1001, 1002, 1003, 1004]) is True
 
 
 # ---------------- Module 4 : regles et audit ----------------
