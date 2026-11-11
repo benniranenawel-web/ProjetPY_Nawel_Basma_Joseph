@@ -80,7 +80,6 @@ pyparsing==3.3.3
 pytest==9.2.0
 python-dateutil==4.0.0
 python-json-logger==4.2.0
-pywinpty==3.1.2
 PyYAML==6.0.3
 pyzmq==27.3.0
 referencing==0.37.0

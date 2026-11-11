@@ -13,10 +13,10 @@ def lire_fichier(chemin: str) -> Iterator[str]:
     try:
         with open(chemin, "r", encoding="utf-8") as fichier:
             for ligne in fichier:
-                # strip() enleve le retour a la ligne "\n" et les espaces
+                #strip() enleve  retour a la ligne "\n" et espaces
                 yield ligne.strip()
     except FileNotFoundError:
-        # si le fichier n'existe pas on previent mais on ne plante pas
+        #si fichier existe pas on previent mais on plante pas
         print(f"Erreur : le fichier {chemin} n'existe pas")
 
 
@@ -29,13 +29,10 @@ def lire_plusieurs_fichiers(liste_chemins: list[str]) -> Iterator[str]:
         yield from lire_fichier(chemin)
         
         
-
-
-
 # Creation de faux logs pour tester le programme
 
 NIVEAUX = ["INFO", "INFO", "INFO", "WARNING", "ERROR", "CRITICAL"]
-UTILISATEURS = ["alice", "bob", "charlie", "david", "eve"]
+UTILISATEURS = ["nawel", "basma", "joseph", "lola", "nora"]
 IPS = ["192.168.1.10", "192.168.1.11", "10.0.0.5", "172.16.0.3"]
 PORTS = [(22, "TCP"), (80, "TCP"), (443, "TCP"), (53, "UDP")]
 # login_success est mis plusieurs fois pour que les echecs soient rares
@@ -57,27 +54,22 @@ def creer_ligne_sale(heure: datetime, niveau: str, connexion: str,
                      user: str, message: str) -> str:
     """Fabrique une ligne abimee, avec un defaut tire au hasard."""
     defaut = random.choice(["casse", "espaces", "ip", "tronquee"])
-    # casse incoherente : la ligne reste valide une fois normalisee
     if defaut == "casse":
         return creer_ligne(heure, niveau.lower(), connexion, user.upper(),
                            message)
-    # espaces en trop : eux aussi sont enleves par la normalisation
     if defaut == "espaces":
         return creer_ligne(heure, niveau, connexion, f"  {user} ",
                            f"  {message}  ")
-    # IP impossible : est_valide doit rejeter ce log
     if defaut == "ip":
         port_protocole = connexion.split(":")[1]
         return creer_ligne(heure, niveau, f"999.1.1.1:{port_protocole}",
                            user, message)
-    # ligne coupee en deux : parser_ligne doit la rejeter
     ligne = creer_ligne(heure, niveau, connexion, user, message)
     return ligne[:len(ligne) // 2]
 
 
 def ip_attaquante(i: int) -> str:
     """Renvoie l'IP qui attaque a la ligne i, ou "" s'il n'y a pas d'attaque."""
-    # une ligne sur 2 pendant 12 lignes : l'attaque est melangee au trafic
     if 300 <= i < 312 and i % 2 == 1:
         return "198.51.100.23"
     if 700 <= i < 712 and i % 2 == 1:
@@ -88,19 +80,17 @@ def ip_attaquante(i: int) -> str:
 def generer_logs(nb_lignes: int, graine: int = 42,
                  scenarios: bool = False) -> Iterator[str]:
     """Generateur qui fabrique des lignes de logs au hasard."""
-    # meme graine = meme "hasard" = memes logs a chaque fois
+    #meme graine = meme "hasard" = memes logs a chaque fois
     random.seed(graine)
     heure = datetime(2026, 11, 3, 9, 0, 0)
 
     for i in range(nb_lignes):
         heure = heure + timedelta(seconds=random.randint(1, 5))
 
-        # une ligne sur 20 est vide (pour tester le nettoyage)
         if i % 20 == 0:
             yield ""
             continue
 
-        # attaques melangees au trafic normal (seulement avec scenarios)
         if scenarios and ip_attaquante(i) != "":
             yield creer_ligne(heure, "ERROR", f"{ip_attaquante(i)}:22/TCP",
                               "root", ECHEC)
@@ -111,13 +101,11 @@ def generer_logs(nb_lignes: int, graine: int = 42,
         port, protocole = random.choice(PORTS)
         user = random.choice(UTILISATEURS)
 
-        # 80 % des messages en JSON, le reste en texte brut
         if random.random() < 0.8:
             message = '{"event": "' + random.choice(EVENEMENTS) + '"}'
         else:
             message = "disk usage high"
 
-        # une ligne sur 25 est sale : a nettoyer ou a rejeter
         if i % 25 == 1:
             yield creer_ligne_sale(heure, niveau, f"{ip}:{port}/{protocole}",
                                    user, message)
@@ -129,7 +117,7 @@ def generer_logs(nb_lignes: int, graine: int = 42,
     if not scenarios:
         return
 
-    # Cas de test ajoutes a la fin 
+    #Cas de test 
 
     # 1) attaque par force brute : 6 echecs de suite
     for i in range(6):

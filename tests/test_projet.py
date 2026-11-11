@@ -1,7 +1,6 @@
-# ============================================================
 # TESTS AUTOMATIQUES DU PROJET
-# ============================================================
-# Pour les lancer (dans PowerShell, depuis le dossier du projet) :
+
+
 #   python -m pytest -v
 # pytest lance toutes les fonctions qui commencent par "test_".
 # "assert condition" : si la condition est fausse, le test echoue.
