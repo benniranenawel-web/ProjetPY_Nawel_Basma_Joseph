@@ -4,9 +4,9 @@
 def regle_blacklist(**config) -> list[str]:
     """Alerte pour chaque IP blacklistee vue dans les logs."""
     alertes = []
-    #recup le resultat de comparer_blacklist (Module 3)
+    # recup le resultat de comparer_blacklist (Module 3)
     ensembles = config["ensembles"]
-    #sorted() pour avoir les IP dans le mm ordre
+    # sorted() pour avoir les IP dans le mm ordre
     for ip in sorted(ensembles["blacklistees_actives"]):
         alertes.append("IP blacklistee active : " + ip)
     return alertes
@@ -15,7 +15,7 @@ def regle_blacklist(**config) -> list[str]:
 def regle_force_brute(**config) -> list[str]:
     """Alerte pour chaque IP qui a fait une attaque par force brute."""
     alertes = []
-    #resultat de detecter_force_brute (Module 3) : {ip: {...}}
+    # resultat de detecter_force_brute (Module 3) : {ip: {...}}
     resultats = config["force_brute"]
     for ip in sorted(resultats):
         if resultats[ip]["attaque"]:
@@ -39,7 +39,7 @@ def apply_security_rules(*regles, **config) -> dict[str, list[str]]:
     resultats = {}
     for regle in regles:
         if not callable(regle):
-            print("Ignore (ce n'est pas une fonction) :",(regle))
+            print("Ignore (ce n'est pas une fonction) :", (regle))
             continue
         try:
             alertes = regle(**config)

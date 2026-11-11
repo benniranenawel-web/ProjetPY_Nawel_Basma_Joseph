@@ -1,11 +1,11 @@
 # MODULE 4 : audit des variables en memoire
 
 # globals= un dico de variables globales du fichier(imports, fonctions, constantes)
-#             
+#
 # locals= un dico de variables de la fonction
 
 
-#pr creer le dossier du rapport 
+# pr creer le dossier du rapport
 import os
 
 
@@ -17,7 +17,7 @@ def decrire_variables(variables: dict) -> list[str]:
     lignes = []
     # sorted=ordre alphabetique
     for nom in sorted(variables):
-        #les __xxx__  on les saute
+        # les __xxx__  on les saute
         if nom.startswith("__"):
             continue
         valeur = variables[nom]

@@ -13,13 +13,11 @@ def lire_fichier(chemin: str) -> Iterator[str]:
     try:
         with open(chemin, "r", encoding="utf-8") as fichier:
             for ligne in fichier:
-                #strip() enleve  retour a la ligne "\n" et espaces
+                # strip() enleve  retour a la ligne "\n" et espaces
                 yield ligne.strip()
     except FileNotFoundError:
-        #si fichier existe pas on previent mais on plante pas
+        # si fichier existe pas on previent mais on plante pas
         print(f"Erreur : le fichier {chemin} n'existe pas")
-
-
 
 
 def lire_plusieurs_fichiers(liste_chemins: list[str]) -> Iterator[str]:
@@ -27,8 +25,8 @@ def lire_plusieurs_fichiers(liste_chemins: list[str]) -> Iterator[str]:
     for chemin in liste_chemins:
         # yield from = renvoyer une par une toutes les lignes de lire_fichier
         yield from lire_fichier(chemin)
-        
-        
+
+
 # Creation de faux logs pour tester le programme
 
 NIVEAUX = ["INFO", "INFO", "INFO", "WARNING", "ERROR", "CRITICAL"]
@@ -80,7 +78,7 @@ def ip_attaquante(i: int) -> str:
 def generer_logs(nb_lignes: int, graine: int = 42,
                  scenarios: bool = False) -> Iterator[str]:
     """Generateur qui fabrique des lignes de logs au hasard."""
-    #meme graine = meme "hasard" = memes logs a chaque fois
+    # meme graine = meme "hasard" = memes logs a chaque fois
     random.seed(graine)
     heure = datetime(2026, 11, 3, 9, 0, 0)
 
@@ -117,7 +115,7 @@ def generer_logs(nb_lignes: int, graine: int = 42,
     if not scenarios:
         return
 
-    #Cas de test 
+    # Cas de test
 
     # 1) attaque par force brute : 6 echecs de suite
     for i in range(6):

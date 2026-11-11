@@ -35,7 +35,7 @@ FICHIER_AUDIT = "output/audit.txt"
 
 def afficher_titre(titre: str) -> None:
     """Affiche un titre encadre de lignes de '='."""
-    
+
     print()
     # "=" * 50 repete le caractere 50 fois
     print("=" * 50)
@@ -84,7 +84,7 @@ def main() -> None:
     else:
         print("Source :", ", ".join(FICHIERS))
         # generateur : les fichiers sont lus ligne par ligne
-        lignes = lire_plusieurs_fichiers(FICHIERS)   
+        lignes = lire_plusieurs_fichiers(FICHIERS)
 
     # ---- 2) Pipeline puis statistiques (Modules 2 et 3) ----
     # nettoyage des lignes (rien n'est encore calcule)

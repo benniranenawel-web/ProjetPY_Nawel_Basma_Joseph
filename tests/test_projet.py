@@ -366,4 +366,5 @@ def test_projet_complet_sur_les_donnees():
     assert stats["nb_logs"] == 1878
     assert ensembles["blacklistees_actives"] == {"203.0.113.42",
                                                  "192.0.2.66"}
-    assert sorted(attaques) == ["198.51.100.23", "198.51.100.77", "203.0.113.42"]
+    assert sorted(attaques) == ["198.51.100.23",
+                                "198.51.100.77", "203.0.113.42"]

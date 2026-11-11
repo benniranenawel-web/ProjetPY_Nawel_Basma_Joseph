@@ -1,13 +1,13 @@
-# MODULE 3 
+# MODULE 3
 
 # defaultdict= un dico qui donne une valeur
 from collections import defaultdict
 # Iterable=une suite de logs qu'on parcourt
 from typing import Iterable
 
-#reutilise le match-case du Module 2 pour classer les logs
+# reutilise le match-case du Module 2 pour classer les logs
 from src.filtres import router_log
-#reutilise le generateur du Module 1 pour lire la blacklist
+# reutilise le generateur du Module 1 pour lire la blacklist
 from src.logs import lire_fichier
 
 
@@ -46,7 +46,7 @@ def analyser_logs(logs: Iterable[dict]) -> dict:
         "par_connexion": par_connexion,
         "tentatives": tentatives,
         "ips_actives": ips_actives,
-        "ips_erreur": ips_erreur,}
+        "ips_erreur": ips_erreur, }
 
 
 def charger_blacklist(chemin: str) -> frozenset[str]:
@@ -64,7 +64,7 @@ def comparer_blacklist(ips_actives: set, ips_erreur: set,
         "autorisees": ips_actives - blacklist,
         "blacklistees_absentes": blacklist - ips_actives,
         "difference_symetrique": blacklist ^ ips_actives,
-        "a_surveiller": ips_erreur | blacklist,}
+        "a_surveiller": ips_erreur | blacklist, }
 
 
 def detecter_force_brute(tentatives: dict, seuil: int = 5,
@@ -90,11 +90,11 @@ def detecter_force_brute(tentatives: dict, seuil: int = 5,
 
             echecs += 1
             dates_echecs.append(date)
-            #le record d'echecs d'affilee
+            # le record d'echecs d'affilee
             if echecs > max_echecs:
                 max_echecs = echecs
 
-            #seuil atteint= mesure le temps pris par les derniers echecs
+            # seuil atteint= mesure le temps pris par les derniers echecs
             if echecs >= seuil:
                 ecart = date - dates_echecs[-seuil]
                 if ecart.total_seconds() <= fenetre:

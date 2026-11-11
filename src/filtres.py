@@ -2,20 +2,21 @@
 
 from typing import Iterable, Iterator
 
-#la fonction du Module 1 qui transforme une ligne en dict
+# la fonction du Module 1 qui transforme une ligne en dict
 from src.transfo import parser_ligne
+
 
 def ip_valide(ip: str) -> bool:
     """True si l'IP contient 4 nombres entre 0 et 255 separes par des points."""
     morceaux = ip.split(".")
-    #faut exactement 4 nombres
+    # faut exactement 4 nombres
     if len(morceaux) != 4:
         return False
     for morceau in morceaux:
-        #isascii() en plus : "²" passe isdigit() mais ferait planter int()
+        # isascii() en plus : "²" passe isdigit() mais ferait planter int()
         if not (morceau.isascii() and morceau.isdigit()):
             return False
-        #isdigit() refuse deja le signe "-" : il reste a verifier le maximum
+        # isdigit() refuse deja le signe "-" : il reste a verifier le maximum
         if int(morceau) > 255:
             return False
     return True
@@ -33,18 +34,18 @@ def est_valide(log: dict) -> bool:
     # port entre 1 et 65535
     if port < 1 or port > 65535:
         return False
-    #accepte que TCP et UDP
+    # accepte que TCP et UDP
     if protocole not in ("TCP", "UDP"):
         return False
-    #tout est bon
+    # tout est bon
     return True
 
 
 def normaliser_log(log: dict) -> dict:
     """Nettoie un log : niveau en majuscules, user en minuscules, etc."""
-    #deballe le tuple de connexion
+    # deballe le tuple de connexion
     ip, port, protocole = log["connexion"]
-    #copie le dictionnaire pour pas modif l'original
+    # copie le dictionnaire pour pas modif l'original
     nouveau = dict(log)
     # "warning" devient "WARNING"
     nouveau["niveau"] = log["niveau"].upper()
@@ -55,7 +56,7 @@ def normaliser_log(log: dict) -> dict:
     # :<8 = aligne a gauche sur 8 caracteres, :>15 = a droite sur 15
     nouveau["resume"] = (f"[{heure}] {nouveau['niveau']:<8} "
                          f"{ip:>15}:{port} {protocole} user={nouveau['user']}")
-    #le log nettoye
+    # le log nettoye
     return nouveau
 
 

@@ -7,7 +7,7 @@ NIVEAUX_VALIDES = ["INFO", "WARNING", "ERROR", "CRITICAL"]
 
 
 def lire_connexion(texte: str) -> tuple[str, int, str]:
-    
+
     adresse, protocole = texte.split("/")
     ip, port = adresse.split(":")
     return (ip, int(port), protocole)
@@ -46,8 +46,8 @@ def parser_ligne(ligne: str) -> dict | None:
         return None
 
     return {"date": date,
-        "niveau": niveau,
-        "ip": connexion[0],
-        "connexion": connexion,
-        "user": user_txt.replace("user=", ""),
-        "message": lire_message(message_txt),}
+            "niveau": niveau,
+            "ip": connexion[0],
+            "connexion": connexion,
+            "user": user_txt.replace("user=", ""),
+            "message": lire_message(message_txt), }
