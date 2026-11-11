@@ -4,36 +4,36 @@ FICHIER_AUDIT             str             'output/audit.txt'
 FICHIER_BLACKLIST         str             'data/blacklist.txt'
 SEUIL_CRITIQUES           int             100
 SEUIL_ECHECS              int             5
-afficher_compteur         function        <function afficher_compteur at 0x00000247C7AC8300>
-afficher_lignes_traitees  function        <function afficher_lignes_traitees at 0x00000247C7AC8460>
-afficher_titre            function        <function afficher_titre at 0x00000247C7A4A4B0>
-analyser_logs             function        <function analyser_logs at 0x00000247C7AB7480>
-apply_security_rules      function        <function apply_security_rules at 0x00000247C7AB7E20>
-charger_blacklist         function        <function charger_blacklist at 0x00000247C7AB75E0>
-comparer_blacklist        function        <function comparer_blacklist at 0x00000247C7AB7740>
-construire_pipeline       function        <function construire_pipeline at 0x00000247C7AB71C0>
-creer_compteurs           function        <function creer_compteurs at 0x00000247C7AB6C40>
-detecter_force_brute      function        <function detecter_force_brute at 0x00000247C7AB78A0>
-exporter_audit            function        <function exporter_audit at 0x00000247C7AC81A0>
-generer_logs              function        <function generer_logs at 0x00000247C7A4A2A0>
-lire_plusieurs_fichiers   function        <function lire_plusieurs_fichiers at 0x00000247C7A49D20>
-main                      function        <function main at 0x00000247C7AC85C0>
-regle_blacklist           function        <function regle_blacklist at 0x00000247C7AB7A00>
-regle_force_brute         function        <function regle_force_brute at 0x00000247C7AB7B60>
-regle_trop_de_critiques   function        <function regle_trop_de_critiques at 0x00000247C7AB7CC0>
+afficher_compteur         function        <function afficher_compteur at 0x000001852EAA8300>
+afficher_lignes_traitees  function        <function afficher_lignes_traitees at 0x000001852EAA8460>
+afficher_titre            function        <function afficher_titre at 0x000001852EA2A4B0>
+analyser_logs             function        <function analyser_logs at 0x000001852EA97480>
+apply_security_rules      function        <function apply_security_rules at 0x000001852EA97E20>
+charger_blacklist         function        <function charger_blacklist at 0x000001852EA975E0>
+comparer_blacklist        function        <function comparer_blacklist at 0x000001852EA97740>
+construire_pipeline       function        <function construire_pipeline at 0x000001852EA971C0>
+creer_compteurs           function        <function creer_compteurs at 0x000001852EA96C40>
+detecter_force_brute      function        <function detecter_force_brute at 0x000001852EA978A0>
+exporter_audit            function        <function exporter_audit at 0x000001852EAA81A0>
+generer_logs              function        <function generer_logs at 0x000001852EA2A2A0>
+lire_plusieurs_fichiers   function        <function lire_plusieurs_fichiers at 0x000001852EA29D20>
+main                      function        <function main at 0x000001852EAA85C0>
+regle_blacklist           function        <function regle_blacklist at 0x000001852EA97A00>
+regle_force_brute         function        <function regle_force_brute at 0x000001852EA97B60>
+regle_trop_de_critiques   function        <function regle_trop_de_critiques at 0x000001852EA97CC0>
 sys                       module          <module 'sys' (built-in)>
 
 === VARIABLES LOCALES (locals()) ===
 alerte                    str             '301 logs CRITICAL (seuil : 100)'
 alertes                   dict            {'regle_blacklist': ['IP blacklistee active : 192.0.2.66', '...
-blacklist                 frozenset       frozenset({'192.0.2.99', '192.0.2.66', '203.0.113.42'})
+blacklist                 frozenset       frozenset({'192.0.2.66', '203.0.113.42', '192.0.2.99'})
 compteurs                 dict            {'lues': 2022, 'vides': 100, 'fausses': 25, 'invalides': 19}
 ensembles                 dict            {'blacklistees_actives': frozenset({'192.0.2.66', '203.0.113...
 etat                      str             'ATTAQUE'
 force_brute               dict            {'172.16.0.3': {'attaque': False, 'max_echecs': 5, 'heure': ...
 ip                        str             '203.0.113.42'
-lignes                    generator       <generator object lire_plusieurs_fichiers at 0x00000247C79DD...
-logs                      map             <map object at 0x00000247C7AC4900>
+lignes                    generator       <generator object lire_plusieurs_fichiers at 0x000001852E9BD...
+logs                      map             <map object at 0x000001852EAA4780>
 nom                       str             'a_surveiller'
 nom_regle                 str             'regle_trop_de_critiques'
 stats                     dict            {'nb_logs': 1878, 'par_niveau': defaultdict(<class 'int'>, {...
